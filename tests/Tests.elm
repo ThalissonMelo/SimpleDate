@@ -1,6 +1,7 @@
 module Tests exposing (..)
 
 import Test exposing (..)
+import SimpleDate exposing (..)
 import Expect
 import String
 
@@ -10,14 +11,74 @@ import String
 
 all : Test
 all =
-    describe "A Test Suite"
-        [ test "Addition" <|
+    describe "Testing the simple date aplication"
+        [ test "verifing json format" <|
             \() ->
-                Expect.equal 10 (3 + 7)
-        , test "String.left" <|
+            let
+                simpleDate = {day = Just 25, month = Just 6, year = Just 1996}
+                jsonDate = SimpleDate.toJson simpleDate
+                jsonCorrectFormat = "{ year = 1996, month = 6, day = 25 }"
+            in
+            Expect.equal (toString(jsonDate)) jsonCorrectFormat
+        
+        , test "json file empty" <|
             \() ->
-                Expect.equal "a" (String.left 1 "abcdefg")
-        , test "This test should fail" <|
+            let
+                dataEmpty = {day = Nothing, month = Nothing, year = Nothing}
+                jsonDate = SimpleDate.toJson dataEmpty
+                jsonCorrectFormat = "{ year = null, month = null, day = null }"
+            in
+            Expect.equal (toString(jsonDate)) jsonCorrectFormat
+            
+        , test "json file empty on year when that one is bigger than 2999" <|
             \() ->
-                Expect.fail "failed as expected!"
+            let
+                wrongYear = { day = Just 25, month = Just 6, year = Just 3000 }
+                jsonDate = SimpleDate.toJson wrongYear
+                jsonCorrectFormat = "{ year = null, month = 6, day = 25 }"
+            in
+            Expect.equal (toString(jsonDate)) jsonCorrectFormat
+            
+        , test "json file empty on year when that one is less than 1" <|
+            \() ->
+            let
+                wrongYear = { day = Just 25, month = Just 6, year = Just 0 }
+                jsonDate = SimpleDate.toJson wrongYear
+                jsonCorrectFormat = "{ year = null, month = 6, day = 25 }"
+            in
+            Expect.equal (toString(jsonDate)) jsonCorrectFormat
+
+        , test "json file empty on day when that one is bigger than 31" <|
+            \() ->
+            let
+                wrongYear = { day = Just 32, month = Just 6, year = Just 1996 }
+                jsonDate = SimpleDate.toJson wrongYear
+                jsonCorrectFormat = "{ year = 1996, month = 6, day = null }"
+            in
+            Expect.equal (toString(jsonDate)) jsonCorrectFormat
+        
+        , test "json file empty on day when that one is less than 1" <|
+            \() ->
+            let
+                wrongYear = { day = Just 0, month = Just 6, year = Just 1996 }
+                jsonDate = SimpleDate.toJson wrongYear
+                jsonCorrectFormat = "{ year = 1996, month = 6, day = null }"
+            in
+            Expect.equal (toString(jsonDate)) jsonCorrectFormat
+        , test "json file empty on month when that one is less than 12" <|
+            \() ->
+            let
+                wrongYear = { day = Just 25, month = Just 13, year = Just 1996 }
+                jsonDate = SimpleDate.toJson wrongYear
+                jsonCorrectFormat = "{ year = 1996, month = null, day = 25 }"
+            in
+            Expect.equal (toString(jsonDate)) jsonCorrectFormat
+        , test "json file empty on month when that one is less than 1" <|
+            \() ->
+            let
+                wrongYear = { day = Just 25, month = Just 0, year = Just 1996 }
+                jsonDate = SimpleDate.toJson wrongYear
+                jsonCorrectFormat = "{ year = 1996, month = null, day = 25 }"
+            in
+            Expect.equal (toString(jsonDate)) jsonCorrectFormat
         ]
